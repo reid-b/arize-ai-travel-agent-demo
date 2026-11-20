@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "sojourns"
+version = "0.1.0"
+description = "Sojourns by Arize AI: a LangGraph travel agent traced with Arize Phoenix"
+authors = Reid Biondo | reidbiondo@gmail.com
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langgraph = "^0.2"
+langchain = "^0.3"
+langchain-community = "^0.3"
+langchain-openai = "^0.2"
+ddgs = "^9.0"
+python-dotenv = "^1.0"
+fastapi = "^0.115"
+uvicorn = "^0.32"
+requests = "^2.31"
+arize-phoenix-otel = "*"
+openinference-instrumentation-langchain = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

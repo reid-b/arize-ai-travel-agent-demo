@@ -1,0 +1,23 @@
+user_prompt,assistant_answer,follow_up,label
+Find flights from JFK to LAX on December 20,I encountered an error while searching for flights. Please try again later.,Try again. This is the third time it has failed.,frustrated
+Find flights to Vegas,Could you tell me your departure city and date?,"I already told you, JFK on the 20th. Why do you keep asking?",frustrated
+Find rental cars for Atlantic City,I couldn't find any rental cars for those dates.,That can't be right. There are rental places everywhere. This is useless.,frustrated
+Compare hotel prices for Atlantic City & Vegas,"I can't search hotel prices, but I can suggest general areas to stay.",So you can't do the one thing I asked? Forget it.,frustrated
+Find flights and resorts for Punta Cana,Here are flight options to Punta Cana. I don't have a tool for resort prices.,"No, I said flights AND resorts. Can I talk to a real person?",frustrated
+I want a warm beach resort trip in January. Recommendations?,I encountered an error while trying to fetch travel tips.,Are you serious?? Just answer the question.,frustrated
+Find flights from New York to Lisbon next Friday,"Here are some flights using sandbox data, not real prices.",Why are these not real prices? What is the point of this then,frustrated
+Find rental cars at LAX from Dec 20 to Dec 27,I couldn't find usable results from the rental service.,"ugh. never mind, I'll just use Google.",frustrated
+What's the cheapest day to fly JFK to LAX between Dec 20 and Dec 23?,The cheapest fare is on December 21.,"That's wrong, I just checked and Dec 22 was cheaper. Did you even search it?",frustrated
+Compare Vegas to Atlantic City,Which city are you flying from?,JFK!!! I've said that twice already.,frustrated
+Find flights to Cannes,Here are flights to Cannes.,There is no airport in Cannes. This is not what I asked for at all.,frustrated
+Bachelor Party in Vegas. Ideas for Activities?,"Las Vegas offers many activities such as shows, pools and dining.","That's super generic. I asked for ideas, not a brochure. Try again.",frustrated
+Find flights from JFK to LAX on December 20,Here are 5 options. The cheapest is $412 with one stop.,What about December 22?,not_frustrated
+Find flights from JFK to LAX on December 20,Here are 5 options. The cheapest is $412 with one stop.,"Perfect, thanks! Can you also find a rental car at LAX?",not_frustrated
+Compare Myrtle Beach to Punta Cana,Which airport are you departing from?,"JFK, and I'm flexible on dates in February.",not_frustrated
+Find rental cars for Vegas,What pickup and drop-off dates would you like?,"Dec 20 to Dec 27, pickup at the airport please.",not_frustrated
+I want a warm beach resort trip in January. Recommendations?,"Great options are Punta Cana, Cancun and Aruba. Punta Cana has the most all-inclusive resorts.","Nice, tell me more about Aruba.",not_frustrated
+Find flights to Cannes,The nearest major airport is Nice (NCE). Here are options from JFK.,"Wow, flights to Europe are so expensive this time of year!",not_frustrated
+Compare hotel prices for Atlantic City & Vegas,"I can't search hotel prices, but Vegas hotels are often cheaper midweek.",Good to know. Can you at least compare the flight prices then?,not_frustrated
+Bachelor Party in Vegas. Ideas for Activities?,"Popular picks are a pool party, a show, and a group dinner.",Love it. Can you make that a rough two-day plan?,not_frustrated
+Find flights and car rentals for Las Vegas,Here are flights and rental cars for your dates.,"Thanks, that is exactly what I needed.",not_frustrated
+Find rental cars for Atlantic City,I couldn't find rentals right at that location. Try the airport instead?,"Sure, try Philadelphia airport then.",not_frustrated

@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sojourns by Arize AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&family=Spectral:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  /* Tokens from docs/ARIZE_BRAND_GUIDELINES.md (sections 3, 4, 7, 8) */
+  :root {
+    --font-serif: "GT Alpina", Spectral, Georgia, serif;
+    --font-sans:  Geist, system-ui, sans-serif;
+    --font-mono:  "Geist Mono", ui-monospace, monospace;
+
+    --bg:        #FCFBF7;
+    --ink:       #040301;
+    --surface:   #F3F1EB;
+    --border:    #C0BEB3;
+    --label:     #65635A;
+    --pink:      #E10C8F;
+    --pink-text: #B70070;      /* accessible pink for text on light */
+    --on-pink:   #FFFFFF;
+    --focus:     #5A3FDB;
+    --radius:    6px;
+  }
+  [data-theme="dark"] {
+    --bg:        #0C0C0D;
+    --ink:       #FCFBF7;
+    --surface:   #18160E;
+    --border:    #4A483F;
+    --label:     #A19F94;
+    --pink:      #FF44AE;
+    --pink-text: #FF44AE;      /* Arize Pink is the text pink on dark */
+    --on-pink:   #0C0C0D;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 16px/1.5 var(--font-sans);
+    letter-spacing: -0.01em;
+    display: flex;
+    flex-direction: column;
+  }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  [data-theme="dark"] :focus-visible { outline-color: #7461FE; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .wordmark {
+    font: 300 28px/1 var(--font-serif);
+    letter-spacing: -0.03em;
+  }
+  .by { font: 400 12px/1 var(--font-mono); color: var(--label); letter-spacing: -0.01em; }
+  .actions { display: flex; gap: 8px; }
+  .ghost {
+    font: 400 12px/1 var(--font-mono);
+    color: var(--label);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+  a.ghost { text-decoration: none; display: inline-block; }
+  .ghost:hover { color: var(--ink); border-color: var(--label); }
+
+  /* Conversation */
+  main { flex: 1; overflow-y: auto; }
+  .column { max-width: 760px; margin: 0 auto; padding: 32px 24px 24px; }
+
+  .empty { padding-top: 6vh; }
+  .empty h1 {
+    font: 300 clamp(30px, 6.25vw, 48px)/1.2 var(--font-serif);
+    letter-spacing: -0.03em;
+    margin: 0 0 16px;
+  }
+  .empty p { color: var(--label); margin: 0 0 28px; max-width: 52ch; }
+  .hint { font: 400 12px/1.5 var(--font-mono); color: var(--label); margin: 0 0 10px; }
+  /* Demo prompts dropdown */
+  .menu-wrap { position: relative; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 20;
+    width: min(480px, 92vw); max-height: 70vh; overflow-y: auto;
+    background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 6px;
+  }
+  .menu[hidden] { display: none; }
+  .menu button {
+    display: block; width: 100%; text-align: left; cursor: pointer;
+    background: transparent; border: 0; border-radius: 4px; padding: 10px 12px;
+    color: var(--ink); font: 400 14px/1.4 var(--font-sans);
+  }
+  .menu button:hover, .menu button:focus-visible { background: var(--surface); }
+  .menu .d { display: block; margin-top: 2px; font: 400 12px/1.4 var(--font-mono); color: var(--label); }
+
+  .msg { margin: 0 0 28px; }
+  .who {
+    font: 400 12px/1 var(--font-mono);
+    color: var(--label);
+    margin-bottom: 8px;
+  }
+  .msg.user .body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .msg.assistant .body { overflow-wrap: anywhere; }
+  .body p { margin: 0 0 12px; }
+  .body p:last-child, .body ul:last-child, .body ol:last-child { margin-bottom: 0; }
+  .body ul, .body ol { margin: 0 0 12px; padding-left: 22px; }
+  .body li { margin-bottom: 4px; }
+  .body strong { font-weight: 500; }
+  .body h4 { font: 400 20px/1.2 var(--font-serif); letter-spacing: -0.03em; margin: 16px 0 8px; }
+  .body a { color: var(--pink-text); text-underline-offset: 2px; }
+  .body code {
+    font: 400 14px var(--font-mono);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  .trace { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .trace span:first-child { font: 400 12px/1 var(--font-mono); color: var(--label); }
+  .tag {
+    font: 400 12px/1 var(--font-mono);
+    color: var(--label);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 6px;
+  }
+  .working { font: 400 14px var(--font-mono); color: var(--label); animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: reduce) { .working { animation: none; } }
+  .error { color: var(--pink-text); }
+
+  /* Composer */
+  footer { border-top: 1px solid var(--border); background: var(--bg); }
+  form { max-width: 760px; margin: 0 auto; padding: 16px 24px 8px; display: flex; gap: 8px; align-items: flex-end; }
+  textarea {
+    flex: 1;
+    resize: none;
+    font: 400 16px/1.5 var(--font-sans);
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 12px;
+    max-height: 160px;
+  }
+  [data-theme="dark"] textarea { background: var(--surface); }
+  textarea::placeholder { color: #838077; }
+  .send {
+    font: 500 14px/1 var(--font-sans);
+    color: var(--on-pink);
+    background: var(--pink);   /* the one primary CTA */
+    border: 0;
+    border-radius: var(--radius);
+    padding: 0 18px;
+    height: 44px;
+    cursor: pointer;
+  }
+  .send:disabled { opacity: .5; cursor: not-allowed; }
+  .note { max-width: 760px; margin: 0 auto; padding: 0 24px 16px; font: 400 12px/1.5 var(--font-mono); color: var(--label); }
+
+  /* Charts */
+  :root { --s1: #006D9E; --s2: #5A3FDB; --s3: #5F6C00; --s4: #B12D00; --s5: #8F5300; }
+  [data-theme="dark"] { --s1: #4FB3E6; --s2: #9C8CFF; --s3: #B5C93A; --s4: #FF7A4D; --s5: #E3A23A; }
+  .chart { margin-top: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: 16px 16px 12px; }
+  .chart-title { font: 400 12px/1 var(--font-mono); color: var(--label); margin: 4px 0 10px; }
+  .chart svg { width: 100%; height: auto; display: block; margin: 6px 0 4px; }
+  .chart svg + .chart-title, .chart .chart-note + .chart-title { margin-top: 22px; }
+  .chart svg text { font: 400 11px var(--font-mono); fill: var(--label); }
+  .chart svg .bar-name { font: 500 13px var(--font-sans); fill: var(--ink); }
+  .chart svg .bar-val { font: 400 12px var(--font-mono); fill: var(--ink); }
+  .chart svg .grid { stroke: var(--border); stroke-width: 1; opacity: .7; }
+  .chart svg .ln { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .chart svg .base { stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .5; }
+  .chart svg .pt { stroke: var(--surface); stroke-width: 1.5; }
+  .chart svg .deal { fill: none; stroke: var(--pink); stroke-width: 2; }
+  .chart svg text.deal-label { font: 500 12px var(--font-mono); fill: var(--pink-text); }
+  .chart-note { font: 400 12px/1.4 var(--font-mono); color: var(--label); margin-top: 4px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font: 400 12px/1.4 var(--font-mono); color: var(--ink); }
+  .legend i { display: inline-block; width: 18px; height: 3px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="wordmark">sojourns</span>
+    <span class="by">by Arize AI</span>
+  </div>
+  <div class="actions">
+    <div class="menu-wrap">
+      <button class="ghost" id="presetBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="presetMenu">Demo prompts &#9662;</button>
+      <div class="menu" id="presetMenu" role="menu" hidden></div>
+    </div>
+    <a class="ghost" href="http://localhost:6006" target="_blank" rel="noopener noreferrer">Traces</a>
+    <button class="ghost" id="new" type="button">New trip</button>
+    <button class="ghost" id="theme" type="button" aria-label="Toggle light and dark mode">Dark</button>
+  </div>
+</header>
+
+<main id="scroll">
+  <div class="column" id="log" aria-live="polite">
+    <section class="empty" id="empty">
+      <h1>Plan the trip. Check the details.</h1>
+      <p>Tell Sojourns where you're headed and when. It looks up flights and answers the practical questions along the way.</p>
+      <p class="hint">Not sure where to start? Open Demo prompts at the top right.</p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <form id="form">
+    <textarea id="input" rows="1" placeholder="Where are you headed?" aria-label="Message"></textarea>
+    <button class="send" id="send" type="submit">Send</button>
+  </form>
+  <div class="note">Sojourns can be wrong. Check fares and dates before you book.</div>
+</footer>
+
+<script>
+(function () {
+  var log = document.getElementById('log');
+  var scroller = document.getElementById('scroll');
+  var empty = document.getElementById('empty');
+  var form = document.getElementById('form');
+  var input = document.getElementById('input');
+  var sendBtn = document.getElementById('send');
+  var themeBtn = document.getElementById('theme');
+  var history = [];
+  var busy = false;
+
+  /* ---- theme ---- */
+  function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    themeBtn.textContent = t === 'dark' ? 'Light' : 'Dark';
+    try { localStorage.setItem('sojourns-theme', t); } catch (e) {}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem('sojourns-theme'); } catch (e) {}
+  setTheme(saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+  themeBtn.addEventListener('click', function () {
+    setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---- tiny, safe markdown renderer (escape first, then format) ---- */
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function inline(s) {
+    s = esc(s);
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    return s;
+  }
+  function render(md) {
+    var lines = md.replace(/\r/g, '').split('\n');
+    var out = [], list = null, para = [];
+    function flushPara() { if (para.length) { out.push('<p>' + para.join('<br>') + '</p>'); para = []; } }
+    function flushList() { if (list) { out.push('</' + list + '>'); list = null; } }
+    lines.forEach(function (line) {
+      var m;
+      if ((m = line.match(/^\s*[-*]\s+(.*)/))) {
+        flushPara(); if (list !== 'ul') { flushList(); out.push('<ul>'); list = 'ul'; }
+        out.push('<li>' + inline(m[1]) + '</li>');
+      } else if ((m = line.match(/^\s*\d+[.)]\s+(.*)/))) {
+        flushPara(); if (list !== 'ol') { flushList(); out.push('<ol>'); list = 'ol'; }
+        out.push('<li>' + inline(m[1]) + '</li>');
+      } else if ((m = line.match(/^#{1,6}\s+(.*)/))) {
+        flushPara(); flushList(); out.push('<h4>' + inline(m[1]) + '</h4>');
+      } else if (line.trim() === '') {
+        flushPara(); flushList();
+      } else {
+        flushList(); para.push(inline(line));
+      }
+    });
+    flushPara(); flushList();
+    return out.join('');
+  }
+
+  /* ---- charts: inline SVG drawn from compare_destinations results ---- */
+  var SERIES = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)', 'var(--s5)'];
+  function fmtDay(iso) {
+    var p = iso.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  function money(v, cur) {
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur || 'USD', maximumFractionDigits: 0 }).format(v);
+    } catch (e) { return String(Math.round(v)); }
+  }
+  function niceTicks(min, max, n) {
+    var range = max - min || 1, raw = range / n, mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var f = raw / mag, step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * mag;
+    var out = [], v = Math.floor(min / step) * step, end = Math.ceil(max / step) * step;
+    for (; v <= end + step / 2; v += step) out.push(v);
+    return out;
+  }
+  function chartSeries(rep) {
+    var list = [];
+    (rep.destinations || []).forEach(function (d) { list.push({ r: d, sim: null }); });
+    (rep.similar || []).forEach(function (s) { list.push({ r: s.report, sim: s }); });
+    return list.filter(function (x) { return x.r.samples && x.r.samples.length; })
+      .map(function (x, i) {
+        return { label: x.r.city || x.r.iata, color: SERIES[i % SERIES.length], r: x.r, sim: x.sim };
+      });
+  }
+  function cityOf(rep, iata) {
+    var all = (rep.destinations || []).concat((rep.similar || []).map(function (s) { return s.report; }));
+    for (var i = 0; i < all.length; i++) if (all[i].iata === iata) return all[i].city || iata;
+    return iata;
+  }
+  function legend(ser) {
+    return '<div class="legend">' + ser.map(function (s) {
+      return '<span><i style="background:' + s.color + '"></i>' + esc(s.label) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  function lineChart(rep, ser) {
+    var W = 700, H = 290, L = 64, R = 20, T = 20, B = 40, days = rep.window || [], n = days.length;
+    if (n < 2) return '';
+    var vals = [];
+    ser.forEach(function (s) {
+      s.r.samples.forEach(function (p) { vals.push(p.price); });
+      if (s.r.baseline_price) vals.push(s.r.baseline_price);
+    });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), pad = (hi - lo) * 0.14 || hi * 0.1;
+    var ticks = niceTicks(Math.max(0, lo - pad), hi + pad, 4), y0 = ticks[0], y1 = ticks[ticks.length - 1];
+    function X(i) { return L + i * (W - L - R) / (n - 1); }
+    function Y(v) { return T + (1 - (v - y0) / (y1 - y0)) * (H - T - B); }
+    var g = '';
+    ticks.forEach(function (t) {
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(t) + '" y2="' + Y(t) + '" class="grid"/>' +
+           '<text x="' + (L - 10) + '" y="' + (Y(t) + 4) + '" text-anchor="end">' + esc(money(t, rep.currency)) + '</text>';
+    });
+    days.forEach(function (d, i) {
+      g += '<text x="' + X(i) + '" y="' + (H - 14) + '" text-anchor="middle">' + esc(fmtDay(d)) + '</text>';
+    });
+    ser.forEach(function (s) {
+      var byDay = {}, path = '', pen = false, dots = '', marks = '';
+      s.r.samples.forEach(function (p) { byDay[p.date] = p.price; });
+      var dealPct = {};
+      (s.r.deals || []).forEach(function (d) { dealPct[d.date] = d.pct_below_baseline; });
+      if (s.r.baseline_price) {
+        g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(s.r.baseline_price) + '" y2="' + Y(s.r.baseline_price) +
+             '" class="base" style="stroke:' + s.color + '"/>';
+      }
+      days.forEach(function (d, i) {
+        if (byDay[d] === undefined) { pen = false; return; }
+        path += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(byDay[d]).toFixed(1) + ' ';
+        pen = true;
+        dots += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(byDay[d]).toFixed(1) + '" r="4" class="pt" style="fill:' + s.color + '"/>';
+        if (dealPct[d] !== undefined) {
+          var ly = Y(byDay[d]) + 27 < H - B ? Y(byDay[d]) + 27 : Y(byDay[d]) - 15;
+          marks += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(byDay[d]).toFixed(1) + '" r="9" class="deal"/>' +
+                   '<text x="' + X(i).toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" class="deal-label">−' +
+                   Math.round(dealPct[d]) + '%</text>';
+        }
+      });
+      g += '<path d="' + path + '" class="ln" style="stroke:' + s.color + '"/>' + dots + marks;
+    });
+    var label = 'Cheapest fare by departure date for ' + ser.map(function (s) { return s.label; }).join(', ');
+    return '<div class="chart-title">Price calendar</div>' + legend(ser) +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(label) + '">' + g + '</svg>' +
+      '<div class="chart-note">Dashed line: route baseline. Pink ring: deal, at least 15% below baseline.</div>';
+  }
+
+  function barChart(rep, ser) {
+    var rows = ser.filter(function (s) { return s.r.median_price != null; })
+      .sort(function (a, b) { return a.r.median_price - b.r.median_price; });
+    if (rows.length < 2) return '';
+    var W = 700, L = 200, R = 90, rowH = 46, H = rows.length * rowH + 12;
+    var max = Math.max.apply(null, rows.map(function (s) { return s.r.median_price; })), k = (W - L - R) / max, g = '';
+    rows.forEach(function (s, i) {
+      var y = 6 + i * rowH, w = Math.max(2, s.r.median_price * k);
+      g += '<text x="' + (L - 12) + '" y="' + (y + 16) + '" text-anchor="end" class="bar-name">' + esc(s.label) + '</text>';
+      if (s.sim && s.sim.cheaper_than_anchor_pct != null) {
+        var pc = s.sim.cheaper_than_anchor_pct;
+        g += '<text x="' + (L - 12) + '" y="' + (y + 31) + '" text-anchor="end">' +
+             esc((pc >= 0 ? Math.round(pc) + '% cheaper' : Math.round(-pc) + '% pricier') + ' than ' + cityOf(rep, s.sim.similar_to)) + '</text>';
+      } else if (s.sim) {
+        g += '<text x="' + (L - 12) + '" y="' + (y + 31) + '" text-anchor="end">similar to ' + esc(cityOf(rep, s.sim.similar_to)) + '</text>';
+      }
+      g += '<rect x="' + L + '" y="' + y + '" width="' + w.toFixed(1) + '" height="26" rx="3" style="fill:' + s.color + '"/>' +
+           '<text x="' + (L + w + 10).toFixed(1) + '" y="' + (y + 18) + '" class="bar-val">' + esc(money(s.r.median_price, rep.currency)) + '</text>';
+    });
+    return '<div class="chart-title">Typical fare, requested and similar cities</div>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Typical fare by destination">' + g + '</svg>' +
+      '<div class="chart-note">Typical fare is the median of the sampled dates. Similar cities share traits such as nightlife, museums and bikes.</div>';
+  }
+
+  function buildCharts(rep) {
+    var ser = chartSeries(rep);
+    if (!ser.length) return null;
+    var box = document.createElement('div');
+    box.className = 'chart';
+    var sandbox = rep.data_mode === 'test' ? '<div class="chart-note">Sandbox data: fares are synthetic, so deals are illustrative.</div>' : '';
+    box.innerHTML = lineChart(rep, ser) + barChart(rep, ser) + sandbox;
+    return box;
+  }
+
+  /* ---- message DOM ---- */
+  function addMessage(role) {
+    if (empty) { empty.remove(); empty = null; }
+    var wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    var who = document.createElement('div');
+    who.className = 'who';
+    who.textContent = role === 'user' ? 'you' : 'sojourns';
+    var body = document.createElement('div');
+    body.className = 'body';
+    wrap.appendChild(who);
+    wrap.appendChild(body);
+    log.appendChild(wrap);
+    scroller.scrollTop = scroller.scrollHeight;
+    return { wrap: wrap, body: body };
+  }
+
+  function setBusy(b) {
+    busy = b;
+    sendBtn.disabled = b;
+    input.disabled = b;
+    if (!b) input.focus();
+  }
+
+  async function send(text) {
+    text = text.trim();
+    if (!text || busy) return;
+    setBusy(true);
+
+    addMessage('user').body.textContent = text;
+    var reply = addMessage('assistant');
+    reply.body.innerHTML = '<span class="working">Working on it…</span>';
+
+    try {
+      var res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: history, session_id: tabId })
+      });
+      if (!res.ok) {
+        var detail = '';
+        try { detail = (await res.json()).detail || ''; } catch (e) {}
+        throw new Error(detail || ('The server returned ' + res.status + '.'));
+      }
+      var data = await res.json();
+
+      reply.body.innerHTML = render(data.response || '');
+      (data.reports || []).forEach(function (rep) {
+        var c = buildCharts(rep);
+        if (c) reply.body.appendChild(c);
+      });
+      if (data.tools_used && data.tools_used.length) {
+        var trace = document.createElement('div');
+        trace.className = 'trace';
+        var label = document.createElement('span');
+        label.textContent = 'used';
+        trace.appendChild(label);
+        data.tools_used.forEach(function (name) {
+          var tag = document.createElement('span');
+          tag.className = 'tag';
+          tag.textContent = name;
+          trace.appendChild(tag);
+        });
+        reply.body.appendChild(trace);
+      }
+      history.push({ role: 'user', content: text });
+      history.push({ role: 'assistant', content: data.response || '' });
+    } catch (err) {
+      reply.body.innerHTML = '<span class="error"></span>';
+      reply.body.firstChild.textContent = 'Something went wrong. ' + err.message + ' Try again.';
+    }
+    setBusy(false);
+    scroller.scrollTop = scroller.scrollHeight;
+  }
+
+  /* ---- events ---- */
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var t = input.value;
+    input.value = '';
+    input.style.height = 'auto';
+    send(t);
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  input.addEventListener('input', function () {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+  });
+  var PRESETS = [
+    { text: "I want a warm beach resort trip in January. Recommendations?",
+      tip: "Open-ended planning. Needs no live data, so the agent should answer from general knowledge or web search and quote no fares." },
+    { text: "Bachelor Party in Vegas. Ideas for Activities?",
+      tip: "Routing. Activity ideas belong to web search or general knowledge, never to the flight or rental tools." },
+    { text: "Compare Vegas to Atlantic City",
+      tip: "compare_destinations. Needs an origin, so the agent should ask before searching, then chart fares to both." },
+    { text: "Compare Myrtle Beach to Punta Cana",
+      tip: "compare_destinations on a domestic beach vs an international one, with deals flagged against a baseline." },
+    { text: "Find flights to Vegas",
+      tip: "Missing details. The agent needs an origin and a date, so it should ask before calling search_flights." },
+    { text: "Find flights to Cannes",
+      tip: "Reasoning before tool use. Cannes has no major airport, so the agent should pick the nearest one (Nice) or ask." },
+    { text: "Find rental cars for Vegas",
+      tip: "search_car_rentals. Needs pickup and drop-off dates, so the agent should ask for them first." },
+    { text: "Find rental cars for Atlantic City",
+      tip: "Location resolution. A smaller city, so watch where the rental service actually searched (resolved_pickup)." },
+    { text: "Find flights and car rentals for Las Vegas",
+      tip: "Chaining across tools. Once it has an origin and dates, the agent combines search_flights and search_car_rentals in one plan." },
+    { text: "Find flights and resorts for Punta Cana",
+      tip: "Tool limits. There is no hotel tool, so the agent should search flights and say plainly it can't check resort prices." },
+    { text: "Compare hotel prices for Atlantic City & Vegas",
+      tip: "Tool limits. No hotel tool exists, so the agent should say so and not invent prices." },
+    { text: "Compare flight prices for Punta Cana and Cannes",
+      tip: "compare_destinations across two very different destinations. Needs an origin, then shows fares, deals and charts." }
+  ];
+
+  var presetBtn = document.getElementById('presetBtn');
+  var presetMenu = document.getElementById('presetMenu');
+  function menuItems() { return Array.prototype.slice.call(presetMenu.querySelectorAll('button')); }
+  function closeMenu(refocus) {
+    presetMenu.hidden = true;
+    presetBtn.setAttribute('aria-expanded', 'false');
+    if (refocus) presetBtn.focus();
+  }
+  function openMenu() {
+    presetMenu.hidden = false;
+    presetBtn.setAttribute('aria-expanded', 'true');
+    var first = menuItems()[0];
+    if (first) first.focus();
+  }
+  PRESETS.forEach(function (p) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('role', 'menuitem');
+    b.appendChild(document.createTextNode(p.text));
+    var d = document.createElement('span');
+    d.className = 'd';
+    d.textContent = p.tip;
+    b.appendChild(d);
+    b.addEventListener('click', function () { closeMenu(false); send(p.text); });
+    presetMenu.appendChild(b);
+  });
+  presetBtn.addEventListener('click', function () { presetMenu.hidden ? openMenu() : closeMenu(false); });
+  document.addEventListener('click', function (e) {
+    if (!presetMenu.hidden && !presetMenu.contains(e.target) && e.target !== presetBtn) closeMenu(false);
+  });
+  presetMenu.addEventListener('keydown', function (e) {
+    var items = menuItems(), i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); }
+    else if (e.key === 'Tab') { closeMenu(false); }
+  });
+
+  document.getElementById('new').addEventListener('click', function () {
+    if (busy) return;
+    history = [];
+    log.innerHTML = '';
+    log.appendChild(document.createRange().createContextualFragment(
+      '<section class="empty" id="empty"><h1>Plan the trip. Check the details.</h1>' +
+      '<p>Tell Sojourns where you’re headed and when. It looks up flights and answers the practical questions along the way.</p>' +
+      '<p class="hint">Not sure where to start? Open Demo prompts at the top right.</p></section>'));
+    empty = document.getElementById('empty');
+    input.focus();
+  });
+
+  /* ---- tell the server when this tab opens/closes (powers auto-shutdown) ---- */
+  var tabId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  function sessionCall(path, beacon) {
+    var body = JSON.stringify({ id: tabId });
+    try {
+      if (beacon && navigator.sendBeacon) {
+        navigator.sendBeacon(path, new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, keepalive: true });
+      }
+    } catch (e) {}
+  }
+  sessionCall('/session/open');
+  window.addEventListener('pagehide', function () { sessionCall('/session/close', true); });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) sessionCall('/session/open'); });
+
+  input.focus();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Runtime dependencies for Sojourns (Python 3.11+).
+langgraph>=0.2,<0.3
+langchain>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-openai>=0.2,<0.3
+ddgs>=9.0,<10
+python-dotenv>=1.0,<2
+fastapi>=0.115,<0.116
+uvicorn>=0.32,<0.33
+requests>=2.31,<3
+
+# Arize Phoenix tracing (the app still runs without these, just without traces).
+arize-phoenix-otel
+openinference-instrumentation-langchain

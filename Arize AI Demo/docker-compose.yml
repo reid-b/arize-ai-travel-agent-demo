@@ -1,0 +1,28 @@
+# Starts Sojourns (http://localhost:8000) and Arize Phoenix (http://localhost:6006).
+#   cp .env.example .env   # add your keys first
+#   docker compose up --build
+services:
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    ports:
+      - "6006:6006"   # Phoenix UI and trace collector
+    volumes:
+      - phoenix-data:/mnt/data
+    environment:
+      - PHOENIX_WORKING_DIR=/mnt/data
+
+  sojourns:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - PHOENIX_COLLECTOR_ENDPOINT=http://phoenix:6006
+    volumes:
+      - sojourns-data:/app/data
+    depends_on:
+      - phoenix
+
+volumes:
+  phoenix-data:
+  sojourns-data:
